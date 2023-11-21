@@ -1,4 +1,4 @@
-const ctx = document.getElementById('chart').getContext('2d');
+const ctx = $('chart').getContext('2d');
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -61,17 +61,21 @@ const chart = new Chart(ctx, {
     }
 });
 
-const wrongInput = document.getElementById('wrong-input');
-const bitsinput = document.getElementById('input-stream');
-const bitsOutput = document.getElementById('output-stream');
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+const wrongInput = $('wrong-input');
+const bitsinput = $('input-stream');
+const bitsOutput = $('output-stream');
+const decodeButton = $('decode');
 
 let selectedScheme = 'nrz';
 let inputStream = '';
 let encodedData = [];
 
-// bitsinput.addEventListener('input', generateSignal)
-
-
+// Function to generate Signal
 function generateSignal() {
     inputStream = bitsinput.value;
     const isValid = /^[01]*$/.test(inputStream);
@@ -109,32 +113,32 @@ function generateSignal() {
                 return;
         }
         plotGraph();
-        const outputData = bitsOutput.join('');
-        bitsOutput.innerHTML = outputData.slice(0, -1);
-        console.log(outputData)
+        const outputData = encodedData
+        outputData.splice(-1, 1);
+        chartBar.children[0].innerHTML = 'Out: ' + outputData.join('')
         wrongInput.innerHTML = "";
     } else {
         wrongInput.innerText = 'Please Enter a valid Stream...!';
     }
 }
 
-
-function handleSchemeChange(event) {
+// Scheme change handler
+$('scheme-name').addEventListener('change', (event) => {
     selectedScheme = event.target.value;
     generateSignal();
-}
+})
 
 
+// function to plot Graph
 function plotGraph() {
     let calibrate = encodedData.at(-1)
     encodedData.push(calibrate)
     chart.data.labels = encodedData.map((_, index) => index.toString());
-    console.log(encodedData)
     chart.data.datasets[0].data = encodedData;
     chart.update();
 }
 
-
+// ---------------------- Encoding Scheme Functions ---------------
 function nrzEncoding(inputStream) {
     const nrzSignal = inputStream.split('').map(Number);
     return nrzSignal;
@@ -143,6 +147,11 @@ function nrzEncoding(inputStream) {
 function nrzlEncoding(inputStream) {
     const bits = inputStream.split('').map(Number);
     const nrzLSignal = bits.map(bit => bit === 0 ? 1 : -1);
+    return nrzLSignal;
+}
+function nrzlDecoding(inputStream) {
+    const bits = inputStream.split('').map(Number);
+    const nrzLSignal = bits.map(bit => bit === 1 ? 0 : 1);
     return nrzLSignal;
 }
 
@@ -261,17 +270,19 @@ function hdb3Encoding(inputStream) {
     return encodedBits;
 }
 
-
-
 // ------------------------------------------------
-// Analog 
-const typeSelect = document.getElementById('type-select')
-const functioSelect = document.getElementById('function-select')
-const samplingRate = document.getElementById('samplingRate')
-const frequency = document.getElementById('frequency')
-const samplingButton = document.getElementById('sampling-btn')
-const q_level = document.getElementById('quantizationLevel')
 
+const typeSelect = $('type-select')
+const functioSelect = $('function-select')
+const samplingRate = $('samplingRate')
+const frequency = $('frequency')
+const samplingButton = $('sampling-btn')
+const q_level = $('quantizationLevel')
+const chartBar = $('chart-bar')
+
+let ySampled = []
+let xValues = [];
+let yValues = [];
 
 
 function handleFunctionChange() {
@@ -295,8 +306,6 @@ function handleFunctionChange() {
     }
 }
 
-let xValues = [];
-let yValues = [];
 
 function generateSignalWave(signal) {
     xValues = []
@@ -314,14 +323,11 @@ function generateSignalWave(signal) {
         generateSampling()
     }
 }
-let ySampled = []
-
 
 function generateSampling() {
 
     if (samplingButton.checked) {
         ySampled = []
-        // ySampled.push(0) 
         let freq = 360 * frequency.value;
 
         for (let i = freq / (2 * samplingRate.value); i < freq; i += (freq / samplingRate.value)) {
@@ -329,61 +335,63 @@ function generateSampling() {
         }
         chart.data.datasets[0].data = ySampled;
         console.log("Y Sampled: ", ySampled);
-        // chart.data.datasets[0].stepped = false;
         chart.data.datasets[0].pointRadius = 5;
-
+        chart.data.datasets[0].data = ySampled;
+        chartBar.children[0].innerHTML = "__Sampled: " + ySampled.join('')
         chart.update();
     }
     else {
         chart.data.datasets[0].data = yValues;
         chart.data.datasets[0].stepped = false;
         chart.data.datasets[0].pointRadius = 0;
-
+        chartBar.children[0].innerHTML = ""
         chart.update();
     }
 }
 
 
 function quantizeSamples() {
-    const samples = ySampled;
-    const n = q_level.value;
-    // Determine the range of values in the samples
-    const minSample = Math.min(...samples);
-    const maxSample = Math.max(...samples);
+    if (quantizationButton.checked) {
+        const samples = ySampled;
+        const n = q_level.value;
 
-    // Calculate the step size between quantization levels
-    const stepSize = ((maxSample - minSample) / n).toFixed(2);
+        const minSample = Math.min(...samples);
+        const maxSample = Math.max(...samples);
 
-    // Perform quantization
-    const quantizedData = samples.map(sample => {
-        // Calculate the quantization level for the current sample
-        const quantizationLevel = Math.floor((sample - minSample) / stepSize);
+        const stepSize = ((maxSample - minSample) / n).toFixed(2);
 
-        // Map the quantization level back to the original value
-        const quantizedValue = minSample + quantizationLevel * stepSize;
+        // Perform quantization
+        const quantizedData = samples.map(sample => {
+            const quantizationLevel = Math.round((sample - minSample) / stepSize);
+            const quantizedValue = minSample + quantizationLevel * stepSize;
 
-        return quantizedValue.toFixed(2);
-    });
+            return quantizedValue.toFixed(2);
+        });
 
-    chart.data.datasets[0].data = quantizedData;
-    console.log(quantizedData, 'hello')
+        chart.data.datasets[0].data = quantizedData;
+        chartBar.children[1].innerHTML = "Quantized: " + quantizedData.join('   ')
+        chartBar.children[2].innerHTML = "Step Size: " + stepSize;
+    }
+    else {
+        chart.data.datasets[0].data = ySampled;
+        chartBar.children[0].innerHTML = "__Sampled:  " + ySampled.join('   ')
+    }
+
     chart.update();
 }
 
 
-document.getElementById("quantizationLevel").addEventListener("change", quantizeSamples);
-document.getElementById("quantization-btn").addEventListener("change", quantizeSamples);
-document.getElementById("sampling-btn").addEventListener("change", generateSampling);
-document.getElementById("samplingRate").addEventListener("change", generateSampling);
-document.getElementById("frequency").addEventListener("change", handleFunctionChange);
-document.getElementById("frequency").addEventListener("change", handleFunctionChange);
-document.getElementById("flatTop").addEventListener("change", (event) => {
+const quantizationButton = $("quantization-btn")
+quantizationButton.addEventListener("change", quantizeSamples);
+$("quantizationLevel").addEventListener("change", quantizeSamples)
+$("sampling-btn").addEventListener("change", generateSampling);
+$("samplingRate").addEventListener("change", generateSampling);
+$("frequency").addEventListener("change", handleFunctionChange);
+$("flatTop").addEventListener("change", (event) => {
     if (event.target.checked) {
         chart.data.datasets[0].stepped = 'before';
         chart.data.datasets[0].pointRadius = 0;
         chart.update();
-
-
     }
     else {
         chart.data.datasets[0].stepped = false;
@@ -395,16 +403,18 @@ document.getElementById("flatTop").addEventListener("change", (event) => {
 
 
 
-const digital = document.getElementById('digital');
-const analog = document.getElementById('analog');
-const digitalForm = document.getElementById('digitalForm');
-const analogForm = document.getElementById('analogForm');
+const digital = $('digital');
+const analog = $('analog');
+const digitalForm = $('digitalForm');
+const analogForm = $('analogForm');
 digital.addEventListener('click', () => {
     digitalForm.classList.toggle('hide');
     digital.classList.toggle('active');
     analogForm.classList.toggle('hide');
     analog.classList.toggle('active');
     chart.data.datasets[0].stepped = 'before';
+    chart.options.scales.y.max = 2;
+    chart.options.scales.y.min = -2;
 
 })
 analog.addEventListener('click', () => {
@@ -415,3 +425,41 @@ analog.addEventListener('click', () => {
     chart.data.datasets[0].stepped = false;
 
 })
+
+
+
+// let decodedData = []
+// function DecodeSignal() {
+//     let inputStream = encodedData.join('');
+
+//     switch (selectedScheme) {
+//         case 'nrz':
+//             decodedData = nrzEncoding(inputStream);
+//             break;
+//         case 'nrzl':
+//             decodedData = nrzlDecoding(inputStream);
+//             break;
+//         case 'nrzi':
+//             decodedData = nrziEncoding(inputStream);
+//             break;
+//         case 'manchester':
+//             decodedData = manchesterEncoding(inputStream);
+//             break;
+//         case 'diffmanchester':
+//             decodedData = differentialManchesterEncoding(inputStream);
+//             break;
+//         case 'ami':
+//             decodedData = amiEncoding(inputStream);
+//             break;
+//         case 'b8zs':
+//             decodedData = b8zsEncoding(inputStream);
+//             break;
+//         case 'hdb3':
+//             decodedData = hdb3Encoding(inputStream);
+//             break;
+
+//         default:
+//             wrongInput.innerText = '!Please select a valid scheme';
+//             return;
+//     }
+// }
