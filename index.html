@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Coding</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&family=Orbitron&display=swap');
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <div class="aside">
+            <h2>Line Coding</h2>
+            <div class="input-container">
+                <div class="button-container">
+                    <button class="scheme-select-button active" id="digital">Digital</button>
+                    <button class="scheme-select-button" id="analog">Analog</button>
+                </div>
+
+                <div class="form form-digital" id="digitalForm">
+                    <label for="scheme-name">Select Scheme</label>
+                    <select id="scheme-name" name="scheme-name" placeholder="coding scheme"
+                        onchange="handleSchemeChange(event)">
+                        <option value="nrz">NRZ</option>
+                        <option value="nrzl">NRZ-L</option>
+                        <option value="nrzi">NRZ-I</option>
+                        <option value="manchester">Manchester</option>
+                        <option value="diffmanchester">Diff. Manchester</option>
+                        <option value="ami">AMI</option>
+                        <option value="b8zs">scrambling: B8ZS</option>
+                        <option value="hdb3">scrambling: HDB3</option>
+                    </select>
+                    <label for="input-stream">Enter Bit Stream </label>
+                    <textarea rows="10" id="input-stream" name="input-stream" placeholder="e.g: --0010101--"
+                        oninput="generateSignal()"></textarea>
+                    <p id="wrong-input"></p>
+                    <label for="output-stream">Output Stream </label>
+                    <p id="output-stream"></p>
+                </div>
+
+                <div class="form form-analog hide" id="analogForm">
+                    <label for="type-select">Select Scheme</label>
+                    <select id="type-select">
+                        <option value="" selected disabled hidden>--select--</option>
+                        <option value="pcm">PCM</option>
+                        <option value="dm">DM</option>
+                    </select>
+                    <label for="function-select">Select Signal</label>
+                    <select id="function-select" onchange="handleFunctionChange()">
+                        <option value="" selected disabled hidden>--select--</option>
+                        <option value="sin">sin</option>
+                        <option value="cos">cos</option>
+                        <option value="triangle">triangle</option>
+                        <option value="square">square</option>
+                        <option value="sawtooth">sawtooth</option>
+
+
+                    </select>
+                    <label for="frequency">Frequency</label>
+                    <input type="number" name="frequency" id="frequency" value="1" placeholder="frequency (in Hz)"
+                        min="1">
+                    <label for="samplingRate">Sampling Rate</label>
+                    <input type="number" name="samplingRate" id="samplingRate" value="1" placeholder="Sampling Rate"
+                        min="1">
+                    <div class="flex-container">
+                        <label class="switch">
+                            <input type="checkbox" id="sampling-btn">
+                            <span class="slider"></span>
+                        </label>
+                        <p>Sampling</p>
+                    </div>
+                    <div class="flex-container">
+                        <label class="switch">
+                            <input type="checkbox" id="flatTop">
+                            <span class="slider"></span>
+                        </label>
+                        <p>Flat Top</p>
+                    </div>
+                    <div class="flex-container">
+                        <label class="switch">
+                            <input type="checkbox" id="quantization-btn">
+                            <span class="slider"></span>
+                        </label>
+                        <p>Quantization</p>
+                    </div>
+
+                    <label for="quantizationLevel">Quantization Level</label>
+                    <input type="number" name="quantizationLevel" id="quantizationLevel" value="1"
+                        placeholder="Quantization Level" min="1">
+
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="header"></div>
+            <div class="panel">
+                <div class="chart-container">
+                    <div class="chart-bar">
+
+                    </div>
+                    <canvas id="chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+<script src="script.js"></script>
+
+</html>
