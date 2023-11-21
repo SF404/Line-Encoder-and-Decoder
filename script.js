@@ -337,7 +337,7 @@ function generateSampling() {
         console.log("Y Sampled: ", ySampled);
         chart.data.datasets[0].pointRadius = 5;
         chart.data.datasets[0].data = ySampled;
-        chartBar.children[0].innerHTML = "__Sampled: " + ySampled.join('')
+        chartBar.children[0].innerHTML = "__Sampled: " + ySampled.join('   ')
         chart.update();
     }
     else {
