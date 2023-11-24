@@ -149,11 +149,12 @@ function nrzlEncoding(inputStream) {
     const nrzLSignal = bits.map(bit => bit === 0 ? 1 : -1);
     return nrzLSignal;
 }
-function nrzlDecoding(inputStream) {
-    const bits = inputStream.split('').map(Number);
-    const nrzLSignal = bits.map(bit => bit === 1 ? 0 : 1);
-    return nrzLSignal;
-}
+
+// function nrzlDecoding(inputStream) {
+//     const bits = inputStream.split('').map(Number);
+//     const nrzLSignal = bits.map(bit => bit === 1 ? 0 : 1);
+//     return nrzLSignal;
+// }
 
 function nrziEncoding(inputStream) {
     const bits = inputStream.split('').map(Number);
@@ -221,7 +222,7 @@ function b8zsEncoding(inputStream) {
             encodedBits.push(0)
             zeroCount++;
             if (zeroCount == 8) {
-                alternate * -1 > 0 ? encodedBits.splice(i - 5, 5, ...pos) : encodedBits.splice(i - 5, 5, ...neg);
+                alternate * -1 > 0 ? encodedBits.splice(i - 4, 5, ...pos) : encodedBits.splice(i - 4, 5, ...neg);
                 zeroCount = 0;
             }
         } else {
@@ -325,7 +326,6 @@ function generateSignalWave(signal) {
 }
 
 function generateSampling() {
-
     if (samplingButton.checked) {
         ySampled = []
         let freq = 360 * frequency.value;

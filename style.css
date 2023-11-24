@@ -188,7 +188,7 @@ input:checked+.slider:before {
     color: white;
     font-family: 'Courier New', Courier, monospace;
     letter-spacing: 5px;
-    padding: 0.5em;
+    padding: 0.5em; 
 }
 
 .panel {
