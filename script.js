@@ -113,9 +113,9 @@ function generateSignal() {
                 return;
         }
         plotGraph();
-        const outputData = encodedData
-        outputData.splice(-1, 1);
-        chartBar.children[0].innerHTML = 'Out: ' + outputData.join('')
+        // const outputData = encodedData
+        // outputData.splice(-1, 1);
+        // chartBar.children[0].innerHTML = 'Out: ' + outputData.join('')
         wrongInput.innerHTML = "";
     } else {
         wrongInput.innerText = 'Please Enter a valid Stream...!';
